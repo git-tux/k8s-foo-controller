@@ -20,13 +20,13 @@ import (
 	"context"
 	"time"
 
+	foogroupv1 "github.com/git-tux/k8s-foo-controller/api/v1"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-
-	foogroupv1 "github.com/git-tux/k8s-foo-controller/api/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 // FooLabelReconciler reconciles a FooLabel object
@@ -50,7 +50,7 @@ type FooLabelReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.20.4/pkg/reconcile
 
 func (r *FooLabelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = logf.FromContext(ctx)
+	_ = klog.FromContext(ctx)
 
 	var foolabel foogroupv1.FooLabel
 	label := foolabel.Spec.Label
@@ -58,15 +58,16 @@ func (r *FooLabelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	if err := r.Get(ctx, req.NamespacedName, &foolabel); err != nil {
 		if apierrors.IsNotFound(err) {
+			// If FooLabel object was deleted, we have to remove the label from pods
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "unable to fetch Foo Label")
+		klog.Error(err, "unable to fetch Foo Label")
 		return ctrl.Result{}, err
 	}
 
 	var podList corev1.PodList
-	if err := r.Client.List(ctx, &podList, client.InNamespace(pnr.Namespace)); err != nil {
-		log.Error(err, "unable to list pods")
+	if err := r.Client.List(ctx, &podList, client.InNamespace(req.Namespace)); err != nil {
+		klog.Error(err, "unable to list pods")
 		return ctrl.Result{}, err
 	}
 
@@ -74,11 +75,11 @@ func (r *FooLabelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		if pod.Labels == nil {
 			pod.Labels = make(map[string]string)
 			pod.Labels[label] = labelvalue
-			log.Info("Added label on pod", pod.Name)
+			klog.Info("Added label on pod", pod.Name)
 		} else {
-			if !pod.Labels[label] == labelvalue {
+			if pod.Labels[label] != labelvalue {
 				pod.Labels[label] = labelvalue
-				log.Info("Added label on pod", pod.Name)
+				klog.Info("Added label on pod", pod.Name)
 			}
 		}
 	}
