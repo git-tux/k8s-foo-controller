@@ -4,6 +4,8 @@
 
 This repository demonstrates an simple operator which implements CRUD actions for a Custom Resource named **FooLabel**. For the development of the operator I will use the kubebuilder tool which creates the structure with the required files for building an operator using Golang.
 
+The operator will add/remove a label in all running pods within a namespace if a FooLabel resource is defined in the same namespace
+
 ## Initialize the project
 
 ```
@@ -17,7 +19,7 @@ kubebuilder  create api --group foogroup --version v1 --kind FooLabel
 
 ## Create FooLabel struct
 
-To create the required fields for the FooLabel kubernetes resource, I had to edit the file [foolabel_types.go](api/v1/foolabel_types.go). The FooLabel struct will be consisted only by one aattribute ( **label**) which contains the label that has to be added in the pods.
+To create the required fields for the FooLabel kubernetes resource, I had to edit the file [foolabel_types.go](api/v1/foolabel_types.go). The FooLabel struct will be consisted by two attributes ( **foolabel** and **foovalue**) which contains the label and the value that has to be added in the pods.
 
 ```go
 
