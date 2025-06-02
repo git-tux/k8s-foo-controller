@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- foogroup_v1_foolabel.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

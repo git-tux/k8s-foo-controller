@@ -1,0 +1,11 @@
+apiVersion: foogroup.foo.controller/v1
+kind: FooLabel
+metadata:
+  labels:
+    app.kubernetes.io/name: k8s-foo-controller
+    app.kubernetes.io/managed-by: kustomize
+  name: foolabel-sample
+  namespace: apps
+spec:
+  foolabel: company
+  foovalue: deepsea
